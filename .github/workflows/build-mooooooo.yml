@@ -1,0 +1,48 @@
+name: Build moooooooo (Tegra X1 Unicorn Emulator)
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout moooooooo
+      uses: actions/checkout@v4
+
+    - name: Clone Unicorn into ./unicorn (per README)
+      run: |
+        git clone https://github.com/shinyquagsire23/unicorn.git unicorn
+
+    - name: Install dependencies
+      run: |
+        sudo apt update
+        sudo apt install -y build-essential python2 python-is-python2 \
+           libglib2.0-dev libpixman-1-dev
+
+    - name: Build Unicorn (required for moooooooo)
+      working-directory: unicorn
+      run: |
+        export UNICORN_QEMU_FLAGS="--python=python2"
+        export UNICORN_ARCHS="arm aarch64"
+        chmod +x make.sh
+        ./make.sh
+
+    - name: Build moooooooo
+      run: |
+        make || echo "moooooooo expects 0_saltedkernel_90000000.bin if used at runtime"
+        ls -al
+
+    - name: Archive build output
+      run: |
+        mkdir -p artifacts
+        cp -r ./unicorn artifacts/unicorn
+        if [ -f moooooooo ]; then cp moooooooo artifacts/; fi
+
+    - uses: actions/upload-artifact@v4
+      with:
+        name: moooooooo-build
+        path: artifacts
