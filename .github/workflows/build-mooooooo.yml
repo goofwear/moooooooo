@@ -7,26 +7,28 @@ on:
 
 jobs:
   build:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04  # pin to a stable runner
 
     steps:
     - name: Checkout moooooooo
       uses: actions/checkout@v4
 
     - name: Clone Unicorn into ./unicorn (per README)
-      run: |
-        git clone https://github.com/shinyquagsire23/unicorn.git unicorn
+      run: git clone https://github.com/shinyquagsire23/unicorn.git unicorn
 
     - name: Install dependencies
       run: |
-        sudo apt update
-        sudo apt install -y build-essential python2 python-is-python2 \
+        sudo apt-get update
+        sudo apt-get install -y --no-install-recommends \
+           build-essential gcc python2.7 python2.7-dev \
            libglib2.0-dev libpixman-1-dev
+        python2.7 --version
+        gcc --version
 
     - name: Build Unicorn (required for moooooooo)
       working-directory: unicorn
       run: |
-        export UNICORN_QEMU_FLAGS="--python=python2"
+        export UNICORN_QEMU_FLAGS="--python=python2.7"
         export UNICORN_ARCHS="arm aarch64"
         chmod +x make.sh
         ./make.sh
